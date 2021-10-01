@@ -301,19 +301,17 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         //We can write to this URI, this will hopefully allow us to write files to get to the next step
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
+        
+        // Start: Changes from fork (see: https://github.com/OJ7/cordova-plugin-camera/commit/fea09e632fd0215f005d062158d54057b457a2a5#)
         if (this.cordova != null) {
-            // Let's check to make sure the camera is actually installed. (Legacy Nexus 7 code)
-            PackageManager mPm = this.cordova.getActivity().getPackageManager();
-            if(intent.resolveActivity(mPm) != null)
-            {
+            try {
                 this.cordova.startActivityForResult((CordovaPlugin) this, intent, (CAMERA + 1) * 16 + returnType + 1);
-            }
-            else
-            {
-                LOG.d(LOG_TAG, "Error: You don't have a default camera.  Your device may not be CTS complaint.");
+            } catch(ActivityNotFoundException e) {
+                e.printStackTrace();
+                LOG.e(LOG_TAG, "Error: You don't have a default camera.  Your device may not be CTS complaint.");
             }
         }
+        // End: Changes from fork
 //        else
 //            LOG.d(LOG_TAG, "ERROR: You must use the CordovaInterface for this to work correctly. Please implement it in your activity");
     }
